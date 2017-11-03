@@ -1,0 +1,56 @@
+
+#import
+import time
+from lxml import etree
+import random
+
+# get dirary list 
+def getDirarys(s,urls,xpath):
+    def stuff(url):
+        rdm=str(random.randint(1,10))
+        res=s.get(url)
+        html=etree.HTML(res.text)
+        content=html.xpath(xpath)
+        print("get"+str(url)+"...success \nsleep...%s"%rdm)
+        time.sleep(rdm)
+        return(content)
+    diraryArr=map(stuff,urls)
+    return diraryArr
+
+# get article content && comment
+def getContent(s,dirarys,xpathes):
+    titleXpath=xpathes[0]
+    atcXpath=xpathes[1]
+    cmtXpath=xpathes[2]
+    def stuff(url):
+        ###request get dirary lists
+        rdm=str(random.randint(1,10))
+        res = s.get(url)
+        html=etree.HTML(res.text)
+        try :
+            titleEl=html.xpath(titleXpath)
+            title=titleEl[0].text
+        except:
+            print('this is not dirary, jump to next ')
+            return;
+        else:
+            ###get Title
+            titleEl=html.xpath(titleXpath)
+            title=titleEl[0].text
+        
+            ###get Content
+            atcEl=html.xpath(atcXpath)
+            atc=''            
+            for p in atcEl:
+                atc+=str(p.text)            
+            ###get Comments
+            cmtEl=html.xpath(cmtXpath)
+            cmts=''
+            for l in cmtEl:
+                cmts+=str(l.text)
+                dirary={'url':url,'title':title,'atc':atc,'cmts':cmts}
+            print('get'+str(url)+'success, sleep %ss'%rdm)
+            time.sleep(rdm)
+            return(dirary)  
+    dirarys=map(stuff,dirarys)
+    return(dirarys)
